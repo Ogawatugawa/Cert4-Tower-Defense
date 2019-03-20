@@ -7,6 +7,8 @@ TagManager:
   - Endzone
   - Enemy
   - Waypoint Parent
+  - Fire Point
+  - Part to Rotate
   layers:
   - Default
   - TransparentFX

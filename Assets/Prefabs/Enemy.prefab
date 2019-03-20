@@ -116,7 +116,7 @@ MonoBehaviour:
   enemyHealth: 100
   target: {fileID: 0}
   waypointParent: {fileID: 0}
-  moveSpeed: 5
+  moveSpeed: 2
   stoppingDistance: 0.05
 --- !u!136 &136098853383866230
 CapsuleCollider:

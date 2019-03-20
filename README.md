@@ -1,2 +1,1 @@
-# Cert4-Tower-Defense
-Tower Defense Practice
+# Cert4-Tower-Defense-Assignment-Prototyping

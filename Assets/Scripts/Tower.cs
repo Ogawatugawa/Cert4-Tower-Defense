@@ -19,16 +19,20 @@ namespace TowerDefense
         private CapsuleCollider rangeCollider;
 
         [Header("Targets")]
-        public GameObject target = null;
+        public Transform target = null;
         //public List<GameObject> enemies;
         private Enemy enemy;
 
+        [Header("Tower Rotation")]
+        public float radiansPerSecond;
+        public Transform partToRotate;
+
         void Start()
         {
-            InvokeRepeating("UpdateTarget", 0f, 0.5f);
+            InvokeRepeating("UpdateTarget", 0f, 0.25f);
             line = GetComponent<LineRenderer>();
-            rangeCollider = GetComponent<CapsuleCollider>();
-            rangeCollider.radius = range * 2;
+            //rangeCollider = GetComponent<CapsuleCollider>();
+            //rangeCollider.radius = range * 2;
         }
 
 
@@ -36,6 +40,7 @@ namespace TowerDefense
         {
             timer += Time.deltaTime;
             //UpdateTarget();
+            MoveTower();
             ShootTarget();
             /*if (enemiesInRange.Count > 0)
             {
@@ -75,27 +80,28 @@ namespace TowerDefense
 
         void UpdateTarget()
         {
-            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-            float shortestDistance = Mathf.Infinity;
-            GameObject closestEnemy = null;
+            float shortestDistance = 0f;
             if (target == null)
             {
+                shortestDistance = Mathf.Infinity;
+                GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+                GameObject closestEnemy = null;
                 int i = 0;
                 foreach (GameObject slot in enemies)
-                {float distance = Vector3.Distance(transform.position, enemies[i].transform.position);
+                {
+                    float distance = Vector3.Distance(transform.position, enemies[i].transform.position);
                     if (distance < shortestDistance)
                     {
                         closestEnemy = enemies[i];
                         shortestDistance = distance;
-                        
+                        if (shortestDistance < range)
+                        {
+                            target = closestEnemy.transform;
+                            enemy = target.GetComponent<Enemy>();
+                            Debug.Log("Target acquired");
+                        }
+                        i++;
                     }
-                    if (shortestDistance < range)
-                    {
-                        target = closestEnemy;
-                        enemy = target.GetComponent<Enemy>();
-                        Debug.Log("Target acquired");
-                    }
-                    i++;
                 }
             }
             if (shortestDistance > range)
@@ -106,9 +112,13 @@ namespace TowerDefense
 
         void MoveTower()
         {
+            //float step = radiansPerSecond * Time.deltaTime;
             if (target != null)
             {
-                Vector3 dir = target.transform.position - transform.position;
+                Vector3 targetDir = target.position - transform.position;
+                Quaternion lookRotation = Quaternion.LookRotation(targetDir);
+                Vector3 newRotation = Quaternion.Lerp(partToRotate.rotation, lookRotation, Time.deltaTime * radiansPerSecond).eulerAngles;
+                partToRotate.rotation = Quaternion.Euler(0f, newRotation.y, 0f);
             }
         }
 
