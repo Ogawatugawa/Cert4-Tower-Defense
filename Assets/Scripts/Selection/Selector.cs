@@ -4,33 +4,34 @@ using UnityEngine;
 
 public class Selector : MonoBehaviour {
 
+    public Transform towerParent;
     public GameObject[] towers;
     public GameObject[] holograms;
+    public int currentTower = 0;
 
-    private int currentTower = 0;
-
-
-    //testing
-    private Vector3 placeablePoint;
+    
     private void OnDrawGizmos()
     {
         Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         Gizmos.color = Color.blue;
         Gizmos.DrawLine(mouseRay.origin, mouseRay.origin + mouseRay.origin + mouseRay.direction * 1000f);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(placeablePoint, .5f);
     }
 
-    // Use this for initialization
-    void Start () {
-		
-	}
+    // Function to disable the GameObjects of all referenced holograms
+    void DisableAllHolograms ()
+    {
+        foreach (var holo in holograms)
+        {
+            holo.SetActive(false);
+        }
+    }
 	
 	// Update is called once per frame
 	void Update ()
     {
+        DisableAllHolograms();
+
         // Creates the ray
         Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -38,10 +39,29 @@ public class Selector : MonoBehaviour {
         if (Physics.Raycast(mouseRay, out hit))
         {
             Placeable p = hit.collider.GetComponent<Placeable>();
-            if (p)
+            if (p && p.isAvailable)
             {
-                // Set placeable point for testing
-                placeablePoint = p.transform.position;
+                // <<<<HOVERING>>>>>
+                // Get hologram of current tower
+                GameObject holo = holograms[currentTower];
+                // Activate hologram
+                holo.SetActive(true);
+                // Position hologram to tile
+                Vector3 placePoint = p.GetPivotPoint();
+                holo.transform.position = placePoint;
+                // <<<<PLACEMEMT>>>>
+                // If LMB is down
+                if (Input.GetMouseButtonDown(0))
+                {
+                    // Get current tower GameObject prefab
+                    GameObject towerToSpawn = towers[currentTower];
+                    // Spawn new clone of that tower
+                    // Position new tower to placeable tile
+                    Instantiate(towerToSpawn, placePoint, Quaternion.identity, towerParent);
+                    // Tile is no longer placeable
+                    p.isAvailable = false;
+                }
+
             }
         }
 	}
