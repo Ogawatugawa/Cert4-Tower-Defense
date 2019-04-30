@@ -31,7 +31,11 @@ public class MagicMissile : Tower {
     public override void Aim(Enemy e)
     {
         // Get the orb to look at the enemy
-        // orb.LookAt(e.transform);
+        // orb.LookAt(e.transform); // ORB
+        Vector3 direction = e.transform.position - transform.position;
+        Quaternion desiredRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.Lerp(transform.rotation, desiredRotation, 10f * Time.deltaTime);
+
         // Create line from orb to enemy
         line.SetPosition(0, firePoint.position);
         line.SetPosition(1, e.transform.position);
